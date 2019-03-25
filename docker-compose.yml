@@ -1,0 +1,39 @@
+# vim: ts=2:sts=2:sw=2:expandtab
+version: '3'
+
+services:
+  gitlab:
+    hostname: 'git.serubin.net'
+    image: gitlab/gitlab-ce:latest
+    ports:
+      - "2222:22"
+      - "8090:80"
+    volumes:
+      - /opt/data/gitlab/config:/etc/gitlab
+      - /opt/data/gitlab/logs:/var/log/gitlab
+      - /opt/data/gitlab/data:/var/opt/gitlab
+      - /opt/data/gitlab/backups:/secret/gitlab/backups
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'https://git.serubin.net'
+        nginx['listen_port'] = 80
+        nginx['listen_https'] = false
+        gitlab_rails['backup_path'] = '/secret/gitlab/backups'
+        gitlab_rails['gitlab_email_enabled'] = true
+        gitlab_rails['gitlab_email_from'] = 'noreply@serubin.net'
+        gitlab_rails['gitlab_email_display_name'] = 'Git@Serubin.net'
+        gitlab_rails['gitlab_email_reply_to'] = 'noreply@serubin.net'
+        gitlab_rails['gitlab_email_subject_suffix'] = ''
+    networks:
+      - traefik
+      - default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.domain=git.serubin.net"
+      - "traefik.frontend.rule=Host: git.serubin.net"
+      - "traefik.docker.network=traefik"
+      - "traefik.port=80"
+      - "traefik.frontend.passHostHeader=true"
+networks:
+  traefik:
+    external: true
