@@ -6,8 +6,7 @@ services:
     hostname: 'git.serubin.net'
     image: gitlab/gitlab-ce:latest
     ports:
-      - "2222:22"
-      - "8090:80"
+      - "22:22"
     volumes:
       - /opt/data/gitlab/config:/etc/gitlab
       - /opt/data/gitlab/logs:/var/log/gitlab
