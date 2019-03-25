@@ -5,6 +5,7 @@ services:
   gitlab:
     hostname: 'git.serubin.net'
     image: gitlab/gitlab-ce:latest
+    restart: always
     ports:
       - "22:22"
     volumes:
