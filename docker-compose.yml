@@ -5,6 +5,10 @@ services:
   gitlab:
     hostname: 'git.serubin.net'
     image: gitlab/gitlab-ce:latest
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
     restart: always
     ports:
       - "22:22"
@@ -24,16 +28,44 @@ services:
         gitlab_rails['gitlab_email_display_name'] = 'Git@Serubin.net'
         gitlab_rails['gitlab_email_reply_to'] = 'noreply@serubin.net'
         gitlab_rails['gitlab_email_subject_suffix'] = ''
+        registry['enable'] = true
+        registry_nginx['enable'] = false
+        registry_external_url 'https://containers.git.serubin.net'
+        registry['registry_http_addr'] = 'registry:5000'
     networks:
-      - traefik
+      - traefik-public
       - default
     labels:
       - "traefik.enable=true"
       - "traefik.domain=git.serubin.net"
       - "traefik.frontend.rule=Host: git.serubin.net"
-      - "traefik.docker.network=traefik"
+      - "traefik.docker.network=traefik-public"
+      - "traefik.tags=traefik-public"
       - "traefik.port=80"
       - "traefik.frontend.passHostHeader=true"
+
+  registry:
+    hostname: 'containers.git.serubin.net'
+    image: registry:2
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    restart: always
+    volumes:
+      - /opt/data/gitlab/registry:/var/lib/registry
+    networks:
+      - default
+      - traefik-public
+    labels:
+      - "traefik.enable=true"
+      - "traefik.domain=containers.git.serubin.net"
+      - "traefik.frontend.rule=Host: containers.git.serubin.net"
+      - "traefik.docker.network=traefik-public"
+      - "traefik.tags=traefik-public"
+      - "traefik.port=5000"
+      - "traefik.frontend.passHostHeader=true"
+
 networks:
-  traefik:
+  traefik-public:
     external: true
