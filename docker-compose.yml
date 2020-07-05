@@ -28,10 +28,9 @@ services:
         gitlab_rails['gitlab_email_display_name'] = 'Git@Serubin.net'
         gitlab_rails['gitlab_email_reply_to'] = 'noreply@serubin.net'
         gitlab_rails['gitlab_email_subject_suffix'] = ''
-        registry['enable'] = true
-        registry_nginx['enable'] = false
-        registry_external_url 'https://containers.git.serubin.net'
-        registry['registry_http_addr'] = 'registry:5000'
+        gitlab_rails['registry_enabled'] = true
+        gitlab_rails['registry_host'] = 'registry.git.serubin.net'
+        gitlab_rails['registry_api_url'] = "https://registry.git.serubin.net"
     networks:
       - traefik-public
       - default
@@ -45,7 +44,7 @@ services:
       - "traefik.frontend.passHostHeader=true"
 
   registry:
-    hostname: 'containers.git.serubin.net'
+    hostname: 'registry.git.serubin.net'
     image: registry:2
     deploy:
       replicas: 1
@@ -59,8 +58,8 @@ services:
       - traefik-public
     labels:
       - "traefik.enable=true"
-      - "traefik.domain=containers.git.serubin.net"
-      - "traefik.frontend.rule=Host: containers.git.serubin.net"
+      - "traefik.domain=registry.git.serubin.net"
+      - "traefik.frontend.rule=Host: registry.git.serubin.net"
       - "traefik.docker.network=traefik-public"
       - "traefik.tags=traefik-public"
       - "traefik.port=5000"
